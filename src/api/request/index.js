@@ -19,7 +19,7 @@ class Request {
   // 请求拦截
   reqInterceptor = (config) => {
     if (this.token) {
-      config = Object.assign({}, config.header, {
+      config.header = Object.assign({}, config.header, {
         Authorization: `Bearer ${this.token}`,
       })
     }
@@ -42,6 +42,11 @@ class Request {
   }
 
   request(config) {
+    try {
+      this.reqInterceptor(config)
+    } catch (error) {
+      console.warn(error)
+    }
     const { url, params = {}, isThirdParty = false, ...restConfig } = config
     let requestUrl
     if (
@@ -74,47 +79,43 @@ class Request {
     })
   }
 
-  get(url, params = {}, header = {}, options = {}) {
+  get(url, params = {}, options = {}) {
     return this.request({
       url,
       method: 'GET',
       data: params,
-      header: this.reqInterceptor(header),
       ...options,
     })
   }
 
-  post(url, data = {}, header = {}, options = {}) {
+  post(url, data = {}, options = {}) {
     return this.request({
       url,
       method: 'POST',
       data,
-      header: this.reqInterceptor(header),
       ...options,
     })
   }
 
-  put(url, data = {}, header = {}, options = {}) {
+  put(url, data = {}, options = {}) {
     return this.request({
       url,
       method: 'PUT',
       data,
-      header: this.reqInterceptor(header),
       ...options,
     })
   }
 
-  delete(url, params = {}, header = {}, options = {}) {
+  delete(url, params = {}, options = {}) {
     return this.request({
       url,
       method: 'DELETE',
       data: params,
-      header: this.reqInterceptor(header),
       ...options,
     })
   }
 
-  postForm(url, data = {}, header = {}, options = {}) {
+  postForm(url, data = {}, options = {}) {
     const queryStr = Object.keys(data)
       .map((key) => {
         return encodeURIComponent(key) + '=' + encodeURIComponent(data[key])
@@ -124,13 +125,7 @@ class Request {
       url,
       method: 'POST',
       data: queryStr,
-      header: this.reqInterceptor(
-        Object.assign(
-          {},
-          { 'Content-Type': 'application/x-www-form-urlencoded' },
-          header
-        )
-      ),
+      header: { 'Content-Type': 'application/x-www-form-urlencoded' },
       ...options,
     })
   }

@@ -1,10 +1,18 @@
 import Request from '@/api/request/index.js'
 
 export function accountLoginRequest(account) {
-  return Request.post('/login', {
-    name: 'coderwhy',
-    password: '123456',
-  })
+  return Request.post(
+    '/login',
+    {
+      name: 'coderwhy',
+      password: '123456',
+    },
+    {
+      header: {
+        test: 'test',
+      },
+    }
+  )
 }
 
 export const getUserInfoRequest = () => {
